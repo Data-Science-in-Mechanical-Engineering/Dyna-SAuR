@@ -2,6 +2,8 @@
 
 **Official repository for the paper *Dyna-SAuR*.**
 
+🌐 **Project page:** [data-science-in-mechanical-engineering.github.io/Dyna-SAuR](https://data-science-in-mechanical-engineering.github.io/Dyna-SAuR/)
+
 This repository contains the code to reproduce results for **Dyna-SAuR**, **Infoprop**, **PPO-Lagrangian**, and **RL-DH** on the Walker and CartPole environments as reported in the paper.
 
 

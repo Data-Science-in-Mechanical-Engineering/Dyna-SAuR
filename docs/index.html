@@ -1,0 +1,517 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dyna-SAuR: Dyna-Style Safety Augmented Reinforcement Learning</title>
+  <meta name="description" content="Dyna-SAuR learns a control policy and a scalable safety filter from a learned uncertainty-aware dynamics model, reducing failures during training by two orders of magnitude. NeurIPS 2026." />
+  <meta property="og:title" content="Dyna-SAuR: Staying Safe in the Face of Uncertainty" />
+  <meta property="og:description" content="Dyna-style Safety Augmented Reinforcement Learning (NeurIPS 2026)." />
+  <meta property="og:url" content="https://data-science-in-mechanical-engineering.github.io/Dyna-SAuR/" />
+  <meta property="og:image" content="https://data-science-in-mechanical-engineering.github.io/Dyna-SAuR/static/img/overview.png" />
+  <meta name="twitter:image" content="https://data-science-in-mechanical-engineering.github.io/Dyna-SAuR/static/img/overview.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="icon" type="image/png" href="static/img/favicon.png" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" />
+  <link rel="stylesheet" href="styles.css" />
+
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],ignoredTags:['script','noscript','style','textarea','pre','code']});"></script>
+  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+</head>
+<body>
+
+  <!-- ============ Top navigation ============ -->
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="#top">
+        <img src="static/img/dynasaur.png" alt="" />
+        <span>Dyna-SAuR</span>
+      </a>
+      <nav class="topnav">
+        <a href="#overview">Overview</a>
+        <a href="#problem">Problem</a>
+        <a href="#method">Method</a>
+        <a href="#demo">Demo</a>
+        <a href="#results">Results</a>
+        <a href="#citation">Citation</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ============ Hero ============ -->
+  <section class="hero" id="top">
+    <div class="container hero-inner">
+      <span class="venue">NeurIPS 2026</span>
+      <h1 class="title">
+        <span class="title-main">Dyna-Style Safety Augmented Reinforcement Learning</span>
+        <span class="title-sub">Staying Safe in the Face of Uncertainty</span>
+      </h1>
+
+      <ul class="authors">
+        <li>Artur Eisele<sup>†</sup></li>
+        <li>Bernd Frauenknecht<sup>†</sup></li>
+        <li>Friedrich Solowjow</li>
+        <li>Sebastian Trimpe</li>
+      </ul>
+      <p class="affiliation">
+        <a href="https://www.dsme.rwth-aachen.de" target="_blank" rel="noopener">Institute for Data Science in Mechanical Engineering</a>, RWTH Aachen University
+      </p>
+      <p class="footnote-line">
+        <sup>†</sup>Equal contribution &nbsp;·&nbsp; Corresponding author: Artur Eisele, <span class="mono nowrap">{first name}.{surname} [at] dsme.rwth-aachen.de</span>
+      </p>
+
+      <div class="buttons">
+        <a class="btn btn-dark" href="https://arxiv.org/pdf/2604.25508" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/></svg>
+          Paper
+        </a>
+        <a class="btn btn-dark" href="https://arxiv.org/abs/2604.25508" target="_blank" rel="noopener">
+          <span class="btn-glyph">χ</span>
+          arXiv
+        </a>
+        <a class="btn btn-dark" href="https://github.com/Data-Science-in-Mechanical-Engineering/Dyna-SAuR" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" aria-hidden="true" class="fill"><path d="M12 .5a11.5 11.5 0 0 0-3.64 22.41c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.53-1.33-1.28-1.69-1.28-1.69-1.05-.71.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.77 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.84 1.19 3.1 0 4.42-2.69 5.39-5.26 5.68.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .5z"/></svg>
+          Code
+        </a>
+        <a class="btn btn-dark" href="#videos">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="5" width="15" height="14" rx="2"/><path d="M17 10l5-3v10l-5-3z"/></svg>
+          Video
+        </a>
+        <a class="btn btn-dark" href="#citation">
+          <svg viewBox="0 0 24 24" aria-hidden="true" class="fill"><path d="M7 7h4v4H7c0 2 1 3 3 3v2c-3.5 0-5-2-5-5zM14 7h4v4h-4c0 2 1 3 3 3v2c-3.5 0-5-2-5-5z"/></svg>
+          BibTeX
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <main>
+
+    <!-- ============ Teaser / TL;DR ============ -->
+    <section class="section" id="overview">
+      <div class="container">
+        <figure class="video-card video-hero" id="video-intro">
+          <video controls preload="metadata" playsinline poster="static/videos/1_introduction.jpg">
+            <source src="static/videos/1_introduction.mp4" type="video/mp4" />
+          </video>
+          <figcaption><span class="chip">Chapter 1</span> The problem and the core idea of Dyna-SAuR <span class="dur">1:19</span></figcaption>
+        </figure>
+
+        <div class="tldr">
+          <img src="static/img/dynasaur.png" alt="Dyna-SAuR mascot: a dinosaur riding a bicycle with a helmet" />
+          <div>
+            <h2 class="tldr-title">TL;DR</h2>
+            <p>
+              Dyna-SAuR learns a <strong>control policy</strong> and a <strong>scalable safety filter</strong> at the same time.
+              It needs only a notion of failure and some initial data. An uncertainty-aware dynamics model lets the filter be
+              trained entirely on synthetic rollouts, so it avoids both <em>failures</em> and regions where the
+              <em>model is uncertain</em>. Deploying the filter lets the agent explore safely. The new data expands the certain region,
+              and the filter becomes less conservative in each iteration.
+            </p>
+          </div>
+        </div>
+
+
+        <div class="abstract">
+          <h2 class="sub-title">Abstract</h2>
+          <p>
+            Safety is a key problem in reinforcement learning, especially during exploration. While safety filters are promising
+            to address this issue, they are ill-suited for high-dimensional systems with unknown dynamics. We propose
+            <em>Dyna-style Safety Augmented Reinforcement Learning (Dyna-SAuR)</em>, a novel algorithm that learns a control
+            policy as well as a scalable safety filter requiring minimal domain knowledge by leveraging a learned
+            uncertainty-aware dynamics model. A novel filter learning formulation enforces to avoid failures and areas of high
+            model uncertainty. As joint deployment of the control policy and filter allow to safely collect data and improve the
+            dynamics model, certain areas grow and filter conservatism decreases over time. Dyna-SAuR reduces failures compared
+            to state-of-the-art methods by two orders of magnitude on goal-reaching CartPole and MuJoCo Walker.
+          </p>
+        </div>
+
+        <!-- Video chapters -->
+        <div class="chapters" id="videos">
+          <h3 class="eyebrow">Video chapters</h3>
+          <div class="chapter-grid">
+            <a class="chapter" href="#video-intro" data-play="video-intro">
+              <img src="static/videos/1_introduction.jpg" alt="" loading="lazy" />
+              <span class="chapter-meta"><b>1 · Introduction</b><span>1:19</span></span>
+            </a>
+            <a class="chapter" href="#video-algorithm" data-play="video-algorithm">
+              <img src="static/videos/2_algorithm.jpg" alt="" loading="lazy" />
+              <span class="chapter-meta"><b>2 · Algorithm</b><span>2:27</span></span>
+            </a>
+            <a class="chapter" href="#video-cartpole" data-play="video-cartpole">
+              <img src="static/videos/3_cartpole.jpg" alt="" loading="lazy" />
+              <span class="chapter-meta"><b>3 · CartPole results</b><span>3:25</span></span>
+            </a>
+            <a class="chapter" href="#video-walker" data-play="video-walker">
+              <img src="static/videos/4_walker.jpg" alt="" loading="lazy" />
+              <span class="chapter-meta"><b>4 · Walker results</b><span>1:48</span></span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ Problem ============ -->
+    <section class="section alt" id="problem">
+      <div class="container">
+        <p class="eyebrow">The problem</p>
+        <h2 class="section-title">Being safe now does not mean staying safe</h2>
+        <div class="split">
+          <div class="prose">
+            <p>
+              Failures are easy to specify: a robot lying on the ground, or a cart crashing at the end of its track. Their
+              complement is the set of <span class="tag tag-green">safe</span> states. But some safe states inevitably lead to
+              failure. On the slope, the cart's engine is too weak to climb back, so it crashes into the
+              <span class="tag tag-red">unsafe</span> set whatever controls are applied.
+            </p>
+            <p>
+              The more informative distinction is between <span class="tag tag-blue">viable</span> states, from which a policy
+              can keep the system safe, and <span class="tag tag-orange">unviable</span> states that are still safe but will inevitably transition into unsafe states.
+              Classical safety filters often draw this line with substantial domain knowledge and scale poorly with dimension.
+              Dyna-SAuR <strong>learns</strong> it from data, without access to the true dynamics.
+            </p>
+          </div>
+          <figure class="figure">
+            <img src="static/img/viability.png" alt="Cart on a sloped track illustrating viable, unviable, safe and unsafe states" loading="lazy" />
+            <figcaption>Safety vs. viability, illustrated by a cart on a sloped track.</figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ Method ============ -->
+    <section class="section" id="method">
+      <div class="container">
+        <p class="eyebrow">Method</p>
+        <h2 class="section-title">Learn a safety filter where the model can be trusted</h2>
+        <p class="lead">
+          Whether failures follow can be checked in synthetic rollouts of a learned dynamics model. The model, however, is only
+          reliable where it has seen data. Dyna-SAuR therefore trains a safety filter that avoids both <em>unsafe</em> and
+          <em>uncertain</em> regions, and grows the trusted region over time.
+        </p>
+
+        <div class="split split-wide">
+          <figure class="figure figure-framed">
+            <img src="static/img/overview.png" alt="Dyna-SAuR mechanism: model learning, safety filter learning, safe control learning and data collection" loading="lazy" />
+            <figcaption><b>Dyna-SAuR mechanism.</b> An uncertainty-aware dynamics model is used to train a safety filter that
+              avoids both failures and uncertain regions of the model. The filter is leveraged to safely learn a control policy
+              in the environment. The collected data improves the model, which expands the certain area and reduces filter
+              conservatism in the next iteration.</figcaption>
+          </figure>
+          <ol class="steps">
+            <li>
+              <span class="step-num">1</span>
+              <div>
+                <h4>Model learning</h4>
+                <p>A probabilistic ensemble $\hat p$ is trained on environment data. Its epistemic uncertainty defines the
+                  sufficiently certain set</p>
+                $$\mathcal{E} := \{(s_t, a_t) \in \mathcal{S} \times \mathcal{A} \mid \mathbb{H}(\hat S_{t+1}) \le \lambda_1\}.$$
+              </div>
+            </li>
+            <li>
+              <span class="step-num">2</span>
+              <div>
+                <h4>Safety filter learning</h4>
+                <p>A filter policy $\mu$ is trained purely in model rollouts to keep the system inside the
+                  <em>certain safe set</em> $\mathcal{S}_\mathrm{S}(\mathcal{E})$, until it passes a filter evaluation.</p>
+              </div>
+            </li>
+            <li>
+              <span class="step-num">3</span>
+              <div>
+                <h4>Safe control learning &amp; data collection</h4>
+                <p>The control policy $\pi$ is trained under the fixed filter on model and environment data. The new data
+                  enlarges $\mathcal{E}$, so the next filter is less restrictive.</p>
+              </div>
+            </li>
+          </ol>
+        </div>
+
+        <figure class="video-card" id="video-algorithm">
+          <video controls preload="metadata" playsinline poster="static/videos/2_algorithm.jpg">
+            <source src="static/videos/2_algorithm.mp4" type="video/mp4" />
+          </video>
+          <figcaption><span class="chip">Chapter 2</span> How Dyna-SAuR works, step by step <span class="dur">2:27</span></figcaption>
+        </figure>
+
+        <div class="split split-top">
+          <div class="algo">
+            <div class="algo-head"><b>Algorithm 1</b> Dyna-SAuR</div>
+            <div class="algo-body">
+              <p><b>input</b> $\mathcal{D}_0^{\hat p, p}$, randomly initialized $\hat p_0$, $\pi_0$ and $\mu_0$</p>
+              <ol>
+                <li><b>for</b> $j \in \{1,\dots,J\}$ Dyna-SAuR iterations <b>do</b></li>
+                <li class="i1">Train dynamics model $\hat p_j$ using data from $\mathcal{D}_{j-1}^{\hat p, p}$</li>
+                <li class="i1"><b>while</b> filter evaluation not successful <b>do</b></li>
+                <li class="i2">Train filter policy $\mu_j$ using $\hat p_j$ and $\pi_{j-1}$</li>
+                <li class="i2">Evaluate filter policy $\mu_j$</li>
+                <li class="i1"><b>end while</b></li>
+                <li class="i1">Train control policy $\pi_j$ using $\hat p_j$ and $\mu_j$ and collect env. data $\mathcal{D}_j^{\hat p, p}$</li>
+                <li><b>end for</b></li>
+              </ol>
+              <p><b>output</b> $\hat p_J,\ \mu_J,\ \pi_J$</p>
+            </div>
+          </div>
+          <div class="prose">
+            <h3>The safety filter MDP</h3>
+            <p>
+              To learn the filter with RL, Dyna-SAuR defines a <em>safety filter MDP</em>. Its dynamics $p^\mathrm{SF}$ wrap the
+              control policy $\pi$, the learned model $\hat p$, a bijective transform $h$ and the filter $\kappa$. At state
+              $s_t$, $\pi$ proposes $a_t$. The filter policy outputs a hyperplane action $u_t$, which $h$ maps to a hyperplane
+              $(w_t, b_t)$. The filter then projects $a_t$ onto the closest viable action:
+            </p>
+            $$a_t^\mathrm{V} = \arg\min_{a\in\mathcal{A}} \lVert a - \pi(s_t)\rVert_2 \;\; \text{s.t.}\;\; w_t^\top a \ge b_t .$$
+            <figure class="figure figure-small">
+              <img src="static/img/filter_mdp.png" alt="Block diagram of the safety filter MDP dynamics" loading="lazy" />
+              <figcaption>Safety filter MDP dynamics $p^\mathrm{SF}$.</figcaption>
+            </figure>
+          </div>
+        </div>
+
+        <details class="more">
+          <summary>Show the detailed block diagram of all three learning problems</summary>
+          <figure class="figure">
+            <img src="static/img/full_overview.png" alt="Detailed block diagram of model, filter and control learning in Dyna-SAuR" loading="lazy" />
+            <figcaption>During filter learning, $\pi$ is fixed and the filter buffer $\mathcal{D}^{\mu,\hat p}$ is filled with model
+              rollouts. During control learning, $\mu$ is fixed. $\pi$ keeps an environment buffer $\mathcal{D}^{\pi,p}$ and a model
+              buffer $\mathcal{D}^{\pi,\hat p}$. In both, the reward is penalized by the filtering magnitude
+              $\lVert a_t^\mathrm{V}-a_t\rVert_2$. Environment transitions also feed the model buffer $\mathcal{D}^{\hat p,p}$
+              with the applied action $a_t^\mathrm{V}$.</figcaption>
+          </figure>
+        </details>
+      </div>
+    </section>
+
+    <!-- ============ Hyperplane action space + demo ============ -->
+    <section class="section alt" id="demo">
+      <div class="container">
+        <p class="eyebrow">Key ingredient</p>
+        <h2 class="section-title">A compact hyperplane action space</h2>
+        <div class="split">
+          <div class="prose">
+            <p>
+              Learning hyperplane parameters $(w,b)$ directly is unbounded and over-parameterized, since $c\,w^\top a \ge c\,b$&nbsp;describes the
+              same hyperplane for any $c&gt;0$. It also does not guarantee that the hyperplane intersects the action space.
+              Dyna-SAuR's filter policy instead acts in the open unit ball
+            </p>
+            $$\mathcal{U} = \{u \in \mathbb{R}^{n_\mathcal{A}} \mid 0 &lt; \lVert u\rVert_2 &lt; 1\},$$
+            <p>which a <strong>bijection</strong> maps onto all hyperplanes intersecting $\mathcal{A} = [-1,1]^{n_\mathcal{A}}$:</p>
+            $$\begin{gathered} h(u) = (w,b) \quad\text{with}\\[2pt] w = \frac{u}{\lVert u\rVert_2},\qquad b = \big(2\lVert u\rVert_2 - 1\big)\lVert w\rVert_1 . \end{gathered}$$
+            <p>
+              The <em>direction</em> of $u$ sets the normal of the hyperplane, and its <em>magnitude</em> sets how restrictive it is.
+              Near $0$ almost every action is viable. Near $1$ most actions are rejected. This minimal search space is what
+              makes data-driven filter learning scale.
+            </p>
+          </div>
+          <div class="callout">
+            <h4>Try it</h4>
+            <p>Move the filter action $u$ on the left with the sliders. On the right, the resulting hyperplane $h(u)$ filters
+              five random control actions. Potentially unsafe proposals (red) are projected onto the viable half-space (green).</p>
+            <p class="muted">Increase $\lVert u\rVert_2$ and watch the viable region shrink.</p>
+          </div>
+        </div>
+
+        <div class="demo">
+          <div class="plots">
+            <div class="plot-card">
+              <div class="plot-head">Filter action <i>u</i> ∈ 𝒰</div>
+              <div id="vectorPlot" class="plot"></div>
+            </div>
+            <div class="flow-arrow" aria-hidden="true">
+              <span class="flow-arrow-label">h</span>
+              <span class="flow-arrow-symbol">→</span>
+            </div>
+            <div class="plot-card">
+              <div class="plot-head">Discriminating hyperplane in 𝒜</div>
+              <div id="mainPlot" class="plot"></div>
+            </div>
+          </div>
+
+          <div class="controls">
+            <label for="u1Slider">u₁</label>
+            <input id="u1Slider" type="range" min="-1" max="1" step="0.001" value="0.2" />
+
+            <label for="u2Slider">u₂</label>
+            <input id="u2Slider" type="range" min="-1" max="1" step="0.001" value="0.2" />
+
+            <label for="normSlider">‖u‖₂</label>
+            <input id="normSlider" type="range" min="0.001" max="1" step="0.001" value="0.283" />
+
+            <div class="controls-foot">
+              <div id="valueReadout" class="readout"></div>
+              <button id="newPointsBtn" type="button">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 1 1-3-6.7L21 8M21 3v5h-5"/></svg>
+                New actions
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="cards3">
+          <div class="card">
+            <h4>Reward: stay certain &amp; safe</h4>
+            $$r^\mathrm{SF} = \begin{cases} 1, & \text{if } (s_t, a_t^\mathrm{V}) \in \mathcal{S}_\mathrm{S}(\mathcal{E}) \\[4pt] -\dfrac{1}{1-\gamma_\mathrm{SF}}, & \text{otherwise} \end{cases}$$
+            <p>Episodes terminate when $\mathcal{S}_\mathrm{S}(\mathcal{E})$ is left. The filter value then lower-bounds the expected time to failure.</p>
+          </div>
+          <div class="card">
+            <h4>Least restrictive projection</h4>
+            $$\max_{\mu \in \mathrm{M}}\; Q^\mathrm{SF}\big(s,\mu(s)\big) - c\,\lVert\mu(s)\rVert_2$$
+            <p>Since $\lVert u\rVert_2$ measures restrictiveness, the regularizer keeps as many actions viable as possible.</p>
+          </div>
+          <div class="card">
+            <h4>Data shaping</h4>
+            $$\rho_0^\mathrm{SF} = \nu_1\rho_0 + \nu_2\,\mathrm{U}(\mathcal{T}_\mathrm{F}) + \nu_3\,\mathrm{U}(\mathcal{T}_\mathrm{G})$$
+            <p>Start states oversample failed and high-return rollouts. Pink-noise perturbations of the previous policy cover the policies the filter must handle.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ Results ============ -->
+    <section class="section" id="results">
+      <div class="container">
+        <p class="eyebrow">Experiments</p>
+        <h2 class="section-title">Comparable returns, orders of magnitude fewer failures</h2>
+        <p class="lead">
+          We evaluate on <b>goal-reaching CartPole</b> <span class="nowrap">($\mathcal{S}\subseteq\mathbb{R}^4$,</span> <span class="nowrap">$\mathcal{A}\subseteq\mathbb{R}$),</span>
+          which must leave its equilibrium and reach a goal at the physical limits, and on <b>MuJoCo Walker</b>
+          <span class="nowrap">($\mathcal{S}\subseteq\mathbb{R}^{17}$,</span> <span class="nowrap">$\mathcal{A}\subseteq\mathbb{R}^6$),</span> a system with discontinuous contact dynamics.
+          We compare against <span class="nowrap">PPO-Lagrangian</span>, <span class="nowrap">DH-RL</span>, and <span class="nowrap">Infoprop-Dyna</span> (MBRL without safety). All results are averaged over 10 seeds
+          with 99% confidence intervals.
+        </p>
+
+        <div class="envs">
+          <figure class="figure figure-framed">
+            <img src="static/img/env_cartpole.png" alt="Goal-reaching CartPole environment with constraints" loading="lazy" />
+            <figcaption><b>Goal-reaching CartPole.</b> Constraints in red, goal in blue.</figcaption>
+          </figure>
+          <figure class="figure figure-framed">
+            <img src="static/img/env_walker.png" alt="MuJoCo Walker with height and angle constraints" loading="lazy" />
+            <figcaption><b>MuJoCo Walker.</b> Constraints on torso height and angle in red.</figcaption>
+          </figure>
+        </div>
+
+        <figure class="figure figure-framed figure-wide">
+          <img src="static/img/main_results.png" alt="Evaluation return and accumulated failures for CartPole and Walker" loading="lazy" />
+          <figcaption><b>Control return (top) and accumulated failures, log scale (bottom).</b> Performance is measured after each
+            Dyna-SAuR iteration (green dots), as the agent is retrained from scratch. Dyna-SAuR matches or exceeds safe RL
+            baselines (<span class="nowrap">PPO-Lagrangian</span>, <span class="nowrap">DH-RL</span>) while reducing failures during training by at least two orders of magnitude.</figcaption>
+        </figure>
+
+        <!-- CartPole -->
+        <div class="result-block">
+          <h3 class="sub-title">Goal-reaching CartPole</h3>
+          <figure class="video-card" id="video-cartpole">
+            <video controls preload="metadata" playsinline poster="static/videos/3_cartpole.jpg">
+              <source src="static/videos/3_cartpole.mp4" type="video/mp4" />
+            </video>
+            <figcaption><span class="chip">Chapter 3</span> The safety filter across Dyna-SAuR iterations <span class="dur">3:25</span>
+              <span class="caption-legend"><span>Right panel, viable actions over $(x,\theta)$:</span>
+                <span class="nowrap"><span class="sw sw-orange"></span> only push left</span>
+                <span class="nowrap"><span class="sw sw-blue"></span> only push right</span>
+                <span class="nowrap"><span class="sw sw-white"></span> all actions viable</span></span></figcaption>
+          </figure>
+        </div>
+
+        <!-- Walker -->
+        <div class="result-block">
+          <h3 class="sub-title">MuJoCo Walker</h3>
+          <figure class="video-card" id="video-walker">
+            <video controls preload="metadata" playsinline poster="static/videos/4_walker.jpg">
+              <source src="static/videos/4_walker.mp4" type="video/mp4" />
+            </video>
+            <figcaption><span class="chip">Chapter 4</span> Safety-constrained Walker learning to walk across Dyna-SAuR iterations <span class="dur">1:48</span></figcaption>
+          </figure>
+        </div>
+
+        <!-- Exploration -->
+        <div class="split split-wide result-block">
+          <figure class="figure figure-framed">
+            <img src="static/img/exploration.png" alt="Data distributions of initial data, final policy and certain sets" loading="lazy" />
+          </figure>
+          <div class="prose">
+            <h3>Exploring beyond the initial data</h3>
+            <p>
+              <b>Top:</b> initial data $\mathcal{D}_0^{\hat p,p}$ (blue) vs. trajectories of the final filtered policy (green).
+              <b>Bottom:</b> initial certain set $\mathcal{E}_0$ (grey) vs. final certain set $\mathcal{E}_J$ (pink).
+            </p>
+            <p>
+              In CartPole (projected onto $x \times \theta$), the initial data lies far from the goal. The certain set has to
+              expand substantially before high-return policies are allowed, and with at most one failure per seed, this
+              gradual expansion works as intended. In Walker (first two principal components), the expansion is less
+              pronounced. Expanding $\mathcal{E}$ efficiently in high-dimensional spaces remains a limitation.
+            </p>
+          </div>
+        </div>
+
+        <!-- Ablations -->
+        <div class="result-block">
+          <h3 class="sub-title">Ablation of design choices</h3>
+          <div class="split split-wide">
+            <div class="tabs" role="tablist">
+              <div class="tab-buttons">
+                <button class="tab active" role="tab" aria-selected="true" data-tab="abl-cartpole">CartPole</button>
+                <button class="tab" role="tab" aria-selected="false" data-tab="abl-walker">Walker</button>
+              </div>
+              <figure class="figure figure-framed tab-panel active" id="abl-cartpole">
+                <img src="static/img/ablation_cartpole.png" alt="Ablation results for CartPole" loading="lazy" />
+              </figure>
+              <figure class="figure figure-framed tab-panel" id="abl-walker">
+                <img src="static/img/ablation_walker.png" alt="Ablation results for Walker" loading="lazy" />
+              </figure>
+            </div>
+            <ul class="findings">
+              <li><span class="sw sw-pink"></span><div><b>Without the filter action space.</b> Learning $(w,b)$ directly, as in
+                <span class="nowrap">DH-RL</span>, fails to produce a reliable filter or high returns. The compact parameterization is central.</div></li>
+              <li><span class="sw sw-purple"></span><div><b>Without action regularization.</b> The filter stays safe but becomes
+                overly restrictive, so control performance drops.</div></li>
+              <li><span class="sw sw-blueline"></span><div><b>Without start-state shaping.</b> Too little data near the filter's weak
+                spots leads to noticeably more failures and slightly lower returns.</div></li>
+              <li><span class="sw sw-green"></span><div><b>Full Dyna-SAuR.</b> Only the combination yields strong results in both
+                performance and safety.</div></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ Citation ============ -->
+    <section class="section alt" id="citation">
+      <div class="container">
+        <p class="eyebrow">Citation</p>
+        <h2 class="section-title">BibTeX</h2>
+        <div class="bibtex">
+          <button class="copy" type="button" data-copy="bibtex-code">Copy</button>
+<pre><code id="bibtex-code">@inproceedings{eisele2026dynasaur,
+  title     = {Dyna-Style Safety Augmented Reinforcement Learning:
+               Staying Safe in the Face of Uncertainty},
+  author    = {Eisele, Artur and Frauenknecht, Bernd and
+               Solowjow, Friedrich and Trimpe, Sebastian},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  year      = {2026}
+}</code></pre>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-inner">
+      <img src="static/img/dynasaur.png" alt="" />
+      <p>
+        Dyna-SAuR · <a href="https://www.dsme.rwth-aachen.de" target="_blank" rel="noopener">DSME</a>, RWTH Aachen University ·
+        <a href="https://github.com/Data-Science-in-Mechanical-Engineering/Dyna-SAuR" target="_blank" rel="noopener">Code on GitHub</a>
+      </p>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+  <script src="page.js"></script>
+</body>
+</html>
