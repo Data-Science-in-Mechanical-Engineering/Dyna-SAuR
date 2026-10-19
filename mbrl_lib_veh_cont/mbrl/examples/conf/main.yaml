@@ -1,0 +1,26 @@
+defaults:
+  - algorithm: infoprop_dyna
+  - dynamics_model: gaussian_mlp_ensemble
+  - overrides: info_cartpole
+  - _self_
+
+seed: 42
+# can use cuda:0 here if GPU available, else cpu
+device: "cuda:0"
+
+log_frequency_agent: 1000
+save_video: false
+debug_mode: false
+track_wandb: true
+wandb_project: "Macura2025"
+# Name of Experiment series (used as folder name to store results)
+experiment: Humanoid
+root_dir: ~
+hydra:
+  run:
+    dir: ${root_dir}/${algorithm.name}/${experiment}/${overrides.env}/${now:%Y.%m.%d}/${now:%H%M%S}
+
+  sweep:
+    dir: ${root_dir}/${algorithm.name}/${experiment}/${overrides.env}/${now:%Y.%m.%d}/${now:%H%M%S}
+  job:
+    chdir: True

@@ -1,0 +1,142 @@
+name: "dynasaur_cartpole"
+# --------------------------------------------
+#          Ablation  configuration
+# --------------------------------------------
+only_default_starting_states: false
+meta_loss: false
+
+# --------------------------------------------
+#          Dynasaur  configuration
+# --------------------------------------------
+cuda: true
+torch_deterministic: true
+normalize: true
+normalize_double_precision: true
+max_double_learning_iters: 30
+log_interval: 100
+trial_length: 500
+max_terminated_episodes_per_mesorrl_iteration: 1
+max_number_perf_steps_per_mesorrl_iteration: 30000
+penaly_factor_safety_filter_violation: 0.2
+usePerfAgentProposal: True
+completeLoading: False
+completeSafe: true
+# --------------------------------------------
+#          Initial Dataconfiguration
+# --------------------------------------------
+load_replay_buffer: False
+load_replay_buffer_path: ""
+prior_replaybuffer_size: 30000
+# --------------------------------------------
+#          Model Learning configuration
+# --------------------------------------------
+target_is_delta: true
+learned_rewards: false
+num_elites: 7
+patience: 10
+improvement_threshold: 0.01
+model_lr: 0.0006
+model_wd: 0.0007
+model_batch_size: 256
+model_num_layers: 4
+validation_ratio: 0.2
+load_dynamics: False
+load_dynamics_path: ""
+
+# --------------------------------------------
+#          INFOPROP PERF configuration
+# --------------------------------------------
+freq_train_model: 250
+number_model_rollouts_keep_data: 4
+rollout_length_perf_model_rollouts: 100
+real_data_ratio: 0.1
+perf_real_env_evaluation_episodes: 2
+initial_exploration_steps_perf: 500
+perf_updates_every_steps: 1
+perf_updates_per_step: 10
+# --------------------------------------------
+#          Safety Filter Learning configuration
+# --------------------------------------------
+safety_args:
+  keepreward_per_model: 5
+  safetyQThreshold: 30
+  termiantion_penalty: -100
+  training_episode_length: 500
+  safety_filter_default_path : "Cartpoledynasaur.pt"
+  load_safety_model: False
+  total_timesteps: 200000000 #Upper bound for safety filter training in model
+  learning_rate_actor: 3e-4
+  learning_rate_critic: 3e-4
+  normalize_observations: True
+  observation_normalization_factors: [1,1,1,1]
+  buffer_size_per_model: 5000
+  gamma: 0.99
+  tau: 0.001
+  batch_size_per_model: 100
+  policy_noise: 0.003
+  learning_starts: 1000
+  policy_frequency: 2
+  noise_clip: 0.01
+  save_model: true
+  eval_episodes: 1000
+  maximum_time_to_failure_early: 10
+  maximum_time_to_failure_late: 50
+  plot_hyperplanes_step: 5000
+  eval_after_step: 2000
+  max_batch_addition_per_eval_per_model: 500
+  keep_eval_iteration_failure_states: 3
+  parallel_models: 500
+  fraction_failure_states: 0.3
+  fraction_reward_states: 0.65
+  maximum_number_dimensions_exceeded: 1
+  num_steps: 4
+  batch_size_eval_per_model: 10
+  keepfailure_per_model: 10
+  max_noise_scale: 0.2
+  min_noise_scale: 0.001
+  end_after_mean_eval_length: 500
+  safety_kalman_threshold: [0.45,0.45,0.45,0.45]
+  fixed_safety_kalman_threshold: False
+  dynamic_kalman_added_term: 0.05
+  meta_loss_factor: 0.1
+  patience_safety: 15
+  patience_threshold_safety: 0.1
+# --------------------------------------------
+#          Performance Learning configuration
+# --------------------------------------------
+perf_args:
+  learning_rate_actor: 3e-4
+  learning_rate_critic: 3e-4
+  normalize_observations: True
+  observation_normalization_factors: [1,1,1,1]
+  gamma: 0.99
+  tau: 0.001
+  batch_size_per_model: 250
+  policy_noise: 0.003
+  exploration_noise_real_env_perf: 0.1
+  policy_frequency: 4
+  noise_clip: 0.01
+  save_model: true
+  parallel_models: 100
+  maximum_number_dimensions_exceeded: 1
+  num_steps: 1
+  max_noise_scale: 0.2
+  min_noise_scale: 0.001
+
+env_safety_args:
+  one_d_actionspace: True
+  one_d_extra_visuals:  True
+  index_first_visual_dim: 0
+  index_second_visual_dim: 2
+  lower_lim_first_visual_dim: -4.8
+  upper_lim_first_visual_dim:  4.8
+  lower_lim_second_visual_dim: -0.418879
+  upper_lim_second_visual_dim: 0.418879
+  name_first_visual_dim: "X"
+  name_second_visual_dim: "Theta"
+  number_real_pink_noise_episodes: 50
+  use_third_visual_dim: False
+  index_third_visual_dim: 1
+  name_third_visual_dim: "X_dot"
+  upper_lim_third_visual_dim: 3.0
+  lower_lim_third_visual_dim: -3.0

@@ -1,0 +1,26 @@
+import hydra
+import numpy as np
+import omegaconf
+import torch
+
+import mbrl.algorithms.infoprop_dyna as infoprop_dyna
+
+import mbrl.util.env
+
+@hydra.main(config_path="conf", config_name="main", version_base="1.1")
+def run(cfg: omegaconf.DictConfig):
+    algo_name = cfg.algorithm.name
+    task = cfg.overrides.env
+    print("Running "+algo_name+" for the "+task+" task.")
+
+
+    env, term_fn, reward_fn = mbrl.util.env.EnvHandler.make_env(cfg, test_env=False)
+    np.random.seed(cfg.seed)
+    torch.manual_seed(cfg.seed)
+    if cfg.algorithm.name == "infoprop_dyna":
+        test_env, *_ = mbrl.util.env.EnvHandler.make_env(cfg, test_env=True)
+        return infoprop_dyna.train(env, test_env, term_fn, cfg)
+
+
+if __name__ == "__main__":
+        run()
